@@ -10,19 +10,42 @@ const MainBg = () => {
         <div className="inner_container">
           <div className="temp">
             <p className="inner_text">website</p>
-            <p className="inner_text2">www.abc.com</p>
+            <p className="inner_text2">
+              {" "}
+              <a
+                href=""
+                style={{ color: "white", textDecoration: "none" }}
+                target="_blank"
+              >
+                www.abc.com
+              </a>
+            </p>
           </div>
           <div className="temp">
             <p className="inner_text">phone</p>
-            <p className="inner_text2">+93 23134523</p>
+            <p className="inner_text2">
+              {" "}
+              <a href="" style={{ color: "white", textDecoration: "none" }}>
+                1234567890
+              </a>
+            </p>
           </div>
           <div className="temp">
-          <p className="inner_text">email</p>
-          <p className="inner_text2">abc@gmail.com</p>
+            <p className="inner_text">email</p>
+            <p className="inner_text2">
+              {" "}
+              <a href="" style={{ color: "white", textDecoration: "none" }}>
+                abc@gmail.con
+              </a>
+            </p>
           </div>
           <div className="temp">
             <p className="inner_text">address</p>
-            <p className="inner_text2">canada</p>
+            <p className="inner_text2">
+              <a href="" style={{ color: "white", textDecoration: "none" }}>
+                street2,main,canada
+              </a>
+            </p>
           </div>
         </div>
       </div>
