@@ -1,10 +1,12 @@
 import React from 'react';
 import Card from './Card';
 import '../Styles/CardList.css';
+import { useNavigate } from 'react-router-dom';
 
 const CardList = () => {
+  const navigation=useNavigate();
     const handleClick = (title) => {
-        alert(`Card clicked: ${title}`);
+        navigation('/Appointment')
       }
     const cards = [
         {

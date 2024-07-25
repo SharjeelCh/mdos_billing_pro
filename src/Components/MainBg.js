@@ -1,6 +1,7 @@
 import React from "react";
 import "../Styles/Main_bg.css";
 import pic from "../assets/doctor.png";
+import BookNowCard from "./BookNowCard";
 
 const MainBg = () => {
   return (
@@ -49,7 +50,7 @@ const MainBg = () => {
           </div>
         </div>
       </div>
-      <img src={pic} alt="main" className="main-image" />
+      <BookNowCard />
     </div>
   );
 };
