@@ -1,24 +1,46 @@
 // src/SignUp.js
-import React from 'react';
+import React, { useState } from "react";
 import {
-  Container, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import google from '../assets/google.png';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link as RouterLink } from 'react-router-dom';
-
+  Container,
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Grid,
+  Box,
+  Typography,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import google from "../assets/google.png";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Navigate, Link as RouterLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const theme = createTheme();
 
 function SignUp() {
+  const navigate = useNavigate();
+  const [input, setinputs] = useState({});
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const input = {
+      name: data.get("name"),
+      email: data.get("email"),
+      password: data.get("password"),
+    };
+    setinputs((prev) => {
+      return { ...prev, ...input };
+    });
+
     console.log({
-      name: data.get('name'),
-      email: data.get('email'),
-      password: data.get('password'),
+      input,
+    });
+    axios.post("http://localhost/api/user/save", input).then((response) => {
+      console.log(response.data);
     });
   };
 
@@ -29,18 +51,23 @@ function SignUp() {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
+          >
             <TextField
               margin="normal"
               required
@@ -87,7 +114,13 @@ function SignUp() {
               fullWidth
               variant="outlined"
               sx={{ mt: 1, mb: 2 }}
-              startIcon={<img src={google} alt="Google" style={{ width: '20px', height: '20px' }} />}
+              startIcon={
+                <img
+                  src={google}
+                  alt="Google"
+                  style={{ width: "20px", height: "20px" }}
+                />
+              }
             >
               Sign up with Google
             </Button>
@@ -95,13 +128,22 @@ function SignUp() {
               fullWidth
               variant="outlined"
               sx={{ mt: 1, mb: 2 }}
-              startIcon={<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style={{ width: '20px', height: '20px' }} />}
+              startIcon={
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+                  alt="Facebook"
+                  style={{ width: "20px", height: "20px" }}
+                />
+              }
             >
               Sign up with Facebook
             </Button>
             <Grid container>
               <Grid item xs>
-                <RouterLink to='/Login' style={{color:'blue',textDecoration:'none'}}>
+                <RouterLink
+                  to="/Login"
+                  style={{ color: "blue", textDecoration: "none" }}
+                >
                   Already have an account? Sign In
                 </RouterLink>
               </Grid>

@@ -1,25 +1,79 @@
-// src/SignIn.js
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Container, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Grid, Box, Typography
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import google from '../assets/google.png'
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { Link as RouterLink } from 'react-router-dom';
+  Container,
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Box,
+  Typography,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import google from "../assets/google.png";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import axios from "axios";
 
 const theme = createTheme();
 
 function Login() {
   const nav = useNavigate();
+  const [user, setUser] = useState({});
+  const [password, setPassword] = useState("newpass");
+
+  const getUser = () => {
+    axios
+      .get("http://localhost/api/user")
+      .then((response) => {
+        setUser(response.data);
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getUserwithid = () => {
+    //get specific user
+    axios
+      .get(`http://localhost/api/user/${"sharjeelh6451@gmail.com"}`)
+      .then((response) => {
+        setUser(response.data);
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const changePassword = () => {
+    axios
+      .put(`http://localhost/api/user/${"sharjeel"}/edit`, {
+        name: "sharjeeel",
+        password: password,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    changePassword();
+  }, [user]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+      email: data.get("email"),
+      password: data.get("password"),
     });
   };
 
@@ -30,18 +84,23 @@ function Login() {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
+          >
             <TextField
               margin="normal"
               required
@@ -78,7 +137,13 @@ function Login() {
               fullWidth
               variant="outlined"
               sx={{ mt: 1, mb: 2 }}
-              startIcon={<img src={google} alt="Google" style={{ width: '20px', height: '20px' }} />}
+              startIcon={
+                <img
+                  src={google}
+                  alt="Google"
+                  style={{ width: "20px", height: "20px" }}
+                />
+              }
             >
               Sign in with Google
             </Button>
@@ -86,18 +151,31 @@ function Login() {
               fullWidth
               variant="outlined"
               sx={{ mt: 1, mb: 2 }}
-              startIcon={<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style={{ width: '20px', height: '20px' }} />}
+              startIcon={
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
+                  alt="Facebook"
+                  style={{ width: "20px", height: "20px" }}
+                />
+              }
             >
               Sign in with Facebook
             </Button>
             <Grid container>
               <Grid item xs>
-                <RouterLink to="#" variant="body2" style={{color:'blue',textDecoration:'none'}}>
+                <RouterLink
+                  to="#"
+                  variant="body2"
+                  style={{ color: "blue", textDecoration: "none" }}
+                >
                   Forgot password?
                 </RouterLink>
               </Grid>
               <Grid item>
-                <RouterLink to='/SignUp' style={{color:'blue',textDecoration:'none'}}>
+                <RouterLink
+                  to="/SignUp"
+                  style={{ color: "blue", textDecoration: "none" }}
+                >
                   Don't have an account? Sign Up
                 </RouterLink>
               </Grid>
