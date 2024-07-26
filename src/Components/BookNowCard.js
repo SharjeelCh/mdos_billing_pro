@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import '../Styles/BookCard.css';
 import pic from '../assets/doctor.png';
+import { useNavigate } from "react-router-dom";
 
 const BookNowCard = () => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const nav=useNavigate();
     const scheduleRef = useRef(null);
 
     useEffect(() => {
@@ -42,7 +44,7 @@ const BookNowCard = () => {
                 </div>
             </div>
             <div className="card-footer">
-                <button className="book-button">Book</button>
+                <button className="book-button" onClick={()=>{nav('/Appointment')}}>Book</button>
             </div>
         </div>
     );
