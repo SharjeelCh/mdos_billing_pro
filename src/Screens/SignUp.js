@@ -1,23 +1,22 @@
-// src/SignIn.js
+// src/SignUp.js
 import React from 'react';
 import {
-  Container, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Grid, Box, Typography
+  Container, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import google from '../assets/google.png'
+import google from '../assets/google.png';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
+
 
 const theme = createTheme();
 
-function Login() {
-  const nav = useNavigate();
-
+function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
+      name: data.get('name'),
       email: data.get('email'),
       password: data.get('password'),
     });
@@ -39,9 +38,19 @@ function Login() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Sign Up
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Full Name"
+              name="name"
+              autoComplete="name"
+              autoFocus
+            />
             <TextField
               margin="normal"
               required
@@ -50,7 +59,6 @@ function Login() {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
             />
             <TextField
               margin="normal"
@@ -60,11 +68,12 @@ function Login() {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
+              helperText="Password must be at least 8 characters long"
             />
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              control={<Checkbox value="agree" color="primary" />}
+              label="I agree to the Terms and Conditions"
             />
             <Button
               type="submit"
@@ -72,7 +81,7 @@ function Login() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Sign Up
             </Button>
             <Button
               fullWidth
@@ -80,7 +89,7 @@ function Login() {
               sx={{ mt: 1, mb: 2 }}
               startIcon={<img src={google} alt="Google" style={{ width: '20px', height: '20px' }} />}
             >
-              Sign in with Google
+              Sign up with Google
             </Button>
             <Button
               fullWidth
@@ -88,17 +97,12 @@ function Login() {
               sx={{ mt: 1, mb: 2 }}
               startIcon={<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style={{ width: '20px', height: '20px' }} />}
             >
-              Sign in with Facebook
+              Sign up with Facebook
             </Button>
             <Grid container>
               <Grid item xs>
-                <RouterLink to="#" variant="body2" style={{color:'blue',textDecoration:'none'}}>
-                  Forgot password?
-                </RouterLink>
-              </Grid>
-              <Grid item>
-                <RouterLink to='/SignUp' style={{color:'blue',textDecoration:'none'}}>
-                  Don't have an account? Sign Up
+                <RouterLink to='/Login' style={{color:'blue',textDecoration:'none'}}>
+                  Already have an account? Sign In
                 </RouterLink>
               </Grid>
             </Grid>
@@ -109,4 +113,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;

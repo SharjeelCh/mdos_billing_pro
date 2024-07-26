@@ -1,0 +1,123 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    justify-content: space-evenly;
+    align-items: flex-start;
+  }
+  
+  .calCont {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+  }
+  
+  .maain {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: fit-content;
+    gap: 4rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 
+    0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    padding: 1.3rem;
+  }
+  
+  .head {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  
+  .calender {
+    max-height: 350px;
+    max-width: 400px; 
+  }
+  
+  .cont2 {
+    flex-basis: 300px;
+    flex-shrink: 0;
+    max-width: 320px;
+    padding: 0.4rem;
+    border-radius: 0.9rem;
+   
+  }
+  
+  .ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+  }
+  
+  .list {
+    width: 80px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 
+              0 6px 20px rgba(0, 0, 0, 0.1);
+    flex-basis: 80px;
+    padding: 8px;
+    border-radius: 0.4rem;
+    text-align: center;
+    background-color: black;
+    color: white;
+    list-style-type: none;
+    border-width: 0;
+  }
+  .list:hover{
+    background-color: white;
+    color: black;
+    transition: 0.3s ease-out;
+  }
+  .dateShow{
+    font-family: 'Times New Roman', Times, serif;
+    font-size:large;
+  }
+  
+  @media (max-width: 685px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+  
+    .maain {
+      flex-direction: column;
+      width: fit-content;
+      gap: 2rem;
+    }
+    .cont2 {
+        flex-basis: 240px;
+        flex-shrink: 0;
+        max-width: 290px;
+    }
+    .list {
+        width: 30px;
+        border: 1px solid gray;
+        flex-basis: 80px;
+        padding: 6px;
+        border-radius: 0.3rem;
+        text-align: center;
+        list-style-type: none;
+      }
+  }
+  

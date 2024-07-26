@@ -18,6 +18,15 @@
     color: #e90052; 
   }
   
+  .item{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  }
+  .item:hover{
+    color: rgb(27, 48, 87);
+    transition:0.4s ease-in-out;
+
+  }
+
   .nav {
     display: flex;
     gap: 20px;
@@ -38,9 +47,41 @@
     cursor: pointer;
     font-size: 16px;
   }
+.menu{
+  display: none;
+}
+
+.nav2{
+  display: none;
+
+}
   
   .auth .login-btn:hover {
     background-color: #104176; 
     transition: 0.3s ease-in-out
   }
   
+  @media (max-width:454px){
+    .header{
+      padding: 6px 7px 7px 6px;
+    }
+    .nav{
+      display:none;
+    }
+    .nav2{
+      position:absolute;
+      margin-top: 100px;
+      background-color: white;
+      padding-left: 0px;
+      padding-right: 0px;
+      width: fit;
+      display: flex;
+      flex-direction: column;
+      }
+    .menu{
+      display: flex;
+    }
+    .logo{
+      display: none;
+    }
+  }
