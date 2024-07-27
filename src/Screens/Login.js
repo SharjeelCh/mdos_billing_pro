@@ -17,6 +17,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
+import { login } from "../PHP/ApiCalls";
 
 const theme = createTheme();
 
@@ -28,19 +29,6 @@ function Login() {
   const getUser = () => {
     axios
       .get("http://localhost/api/user")
-      .then((response) => {
-        setUser(response.data);
-        console.log(user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const getUserwithid = () => {
-    //get specific user
-    axios
-      .get(`http://localhost/api/user/${"sharjeelh6451@gmail.com"}`)
       .then((response) => {
         setUser(response.data);
         console.log(user);
@@ -64,17 +52,20 @@ function Login() {
       });
   };
 
-  useEffect(() => {
-    changePassword();
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const input = {
       email: data.get("email"),
       password: data.get("password"),
+    };
+    setUser((prev) => {
+      return { ...prev, ...input };
     });
+    console.log(input.email, input.password);
+    login(input.email, input.password, setUser);
   };
 
   return (
@@ -95,12 +86,7 @@ function Login() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required

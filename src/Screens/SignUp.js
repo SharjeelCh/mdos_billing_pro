@@ -18,6 +18,7 @@ import google from "../assets/google.png";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Navigate, Link as RouterLink, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { signup } from "../PHP/ApiCalls";
 
 const theme = createTheme();
 
@@ -39,9 +40,7 @@ function SignUp() {
     console.log({
       input,
     });
-    axios.post("http://localhost/api/user/save", input).then((response) => {
-      console.log(response.data);
-    });
+    signup(input);
   };
 
   return (
@@ -62,12 +61,7 @@ function SignUp() {
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
