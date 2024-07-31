@@ -37,3 +37,8 @@
   width: 100%;
   text-align: center;
 }
+@media(max-width: 542px ) {
+  .cancel-p{
+    display: none;
+  }
+}

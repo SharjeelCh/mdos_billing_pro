@@ -1,6 +1,20 @@
 import React, { useState } from "react";
-import { Card, Col, Row, List, Avatar, Typography, Button, Space, Tabs } from "antd";
-import { CalendarOutlined, ClockCircleOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Col,
+  Row,
+  List,
+  Avatar,
+  Typography,
+  Button,
+  Space,
+  Tabs,
+} from "antd";
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import "../../Styles/Appointments.css";
 
 const { Title, Text } = Typography;
@@ -50,7 +64,7 @@ const Appointments = () => {
           <Card className="appointment-card">
             <List.Item>
               <List.Item.Meta
-              //  avatar={<Avatar src={appointment.avatar} />}
+                //  avatar={<Avatar src={appointment.avatar} />}
                 title={appointment.doctor}
                 description={appointment.specialty}
               />
@@ -66,9 +80,10 @@ const Appointments = () => {
                 type="primary"
                 danger
                 icon={<DeleteOutlined />}
+                className="cancel-button"
                 onClick={() => handleDelete(appointment.id)}
               >
-                Cancel Appointment
+                <p className="cancel-p"> Cancel Appointment</p>
               </Button>
             </Space>
           </Card>
@@ -79,7 +94,9 @@ const Appointments = () => {
 
   return (
     <div className="appointments-container">
-      <Title level={2} className="page-title">Your Appointments</Title>
+      <Title level={2} className="page-title">
+        Your Appointments
+      </Title>
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Upcoming" key="upcoming">
           {renderAppointments(upcomingAppointments)}
