@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../Styles/Tabbar.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { MenuBook, MenuOpen, MenuRounded } from "@mui/icons-material";
 function Tabbar() {
@@ -8,7 +8,9 @@ function Tabbar() {
   const nav = useNavigate();
   return (
     <header className="header">
-      <div className="logo">pleo</div>
+      <Link to={"/Dashboard"} className="logo">
+        pleo
+      </Link>
       <button
         className="menu"
         onClick={() => {
