@@ -1,4 +1,5 @@
 import axios from "axios";
+import { loginState } from "./StateApiCalls";
 
 export const signup = (input) => {
   axios.post("http://localhost/api/signup", input).then((response) => {
@@ -16,6 +17,7 @@ export const login = (email, password, setUser) => {
     })
     .then((response) => {
       setUser(response.data);
+      loginState(email,password)
       console.log(response.data);
     })
     .catch((error) => {

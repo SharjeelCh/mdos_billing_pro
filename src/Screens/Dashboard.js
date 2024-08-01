@@ -6,6 +6,7 @@ import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import "../Styles/Appp.css";
 import MainContent from "../Components/Dashboard/MainContent";
 import Appointments from "../Components/Dashboard/Appointments";
+import Logout from "../Components/Dashboard/Logout";
 
 const { Sider, Header, Content } = Layout;
 
@@ -19,7 +20,8 @@ const Dashboard = () => {
         return <MainContent />;
       case "2":
         return <Appointments />;
-    
+      case "5":
+        return <Logout/>  
       default:
         return <MainContent />;
     }

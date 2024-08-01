@@ -17,7 +17,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
-import { login } from "../PHP/ApiCalls";
+//import { login } from "../PHP/ApiCalls";
+import { login } from '../auth/authSlice';
+
+import { useDispatch, useSelector } from "react-redux";
 
 const theme = createTheme();
 
@@ -25,6 +28,8 @@ function Login() {
   const nav = useNavigate();
   const [user, setUser] = useState({});
   const [password, setPassword] = useState("newpass");
+  const dispatch = useDispatch();
+  const { isAuthenticated, status, error } = useSelector((state) => state.auth);
 
   const getUser = () => {
     axios
@@ -65,7 +70,9 @@ function Login() {
       return { ...prev, ...input };
     });
     console.log(input.email, input.password);
-    login(input.email, input.password, setUser);
+    //  login(input.email, input.password, setUser);
+    dispatch(login(input));
+
   };
 
   return (
