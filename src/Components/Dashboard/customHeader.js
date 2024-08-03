@@ -9,7 +9,7 @@ const CustomHeader = () => {
   return (
     <Flex align="center" justify="space-between">
       <></>
-      <Typography.Title level={4} type="secondary">
+      <Typography.Title level={4} type='secondary'>
         Welcome Back,{user ? user.name : "User"}
       </Typography.Title>
       <Flex align="flex-end">

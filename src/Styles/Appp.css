@@ -1,6 +1,7 @@
 /*Main-app*/
 .headerr {
   padding-top: 12px;
+  height: fit-content;
   background: #fff;
 }
 .content {
@@ -20,6 +21,7 @@
 .sider {
   height: 100vh;
   position: sticky !important;
+  width: fit-content;
   left: 0;
   bottom: 0;
   top: 0;

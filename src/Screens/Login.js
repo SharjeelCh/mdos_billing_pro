@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 //import { login } from "../PHP/ApiCalls";
-import { login } from '../auth/authSlice';
+import { login } from "../auth/authSlice";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -57,8 +57,11 @@ function Login() {
       });
   };
 
-  useEffect(() => {}, [user]);
-
+  useEffect(() => {
+    if (isAuthenticated) {
+      nav("/");
+    }
+  }, [isAuthenticated, user]);
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -72,7 +75,6 @@ function Login() {
     console.log(input.email, input.password);
     //  login(input.email, input.password, setUser);
     dispatch(login(input));
-
   };
 
   return (

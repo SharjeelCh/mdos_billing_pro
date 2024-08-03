@@ -6,11 +6,15 @@ import {
   LogoutOutlined,
   OrderedListOutlined,
   CarryOutOutlined,
-  SettingOutlined,
+  FileAddOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import { FaLeaf } from "react-icons/fa6";
+import { useMediaQuery } from "@mui/material";
+import { width } from "@mui/system";
 
 const Sidebar = ({ setSelectedMenuItem }) => {
+  const isSmallScreen = useMediaQuery("(max-width: 500px)");
   return (
     <>
       <Flex align="center" justify="center" className="side">
@@ -38,13 +42,19 @@ const Sidebar = ({ setSelectedMenuItem }) => {
               icon: <OrderedListOutlined />,
               label: "Forms",
             },
+            
             {
               key: "4",
-              icon: <SettingOutlined />,
-              label: "Settings",
+              icon: <BookOutlined />,
+              label: "Booking",
             },
             {
               key: "5",
+              icon: <FileAddOutlined />,
+              label: "Intake Form",
+            },
+            {
+              key: "6",
               icon: <LogoutOutlined />,
               label: "Logout",
             },

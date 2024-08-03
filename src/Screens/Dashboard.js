@@ -7,6 +7,9 @@ import "../Styles/Appp.css";
 import MainContent from "../Components/Dashboard/MainContent";
 import Appointments from "../Components/Dashboard/Appointments";
 import Logout from "../Components/Dashboard/Logout";
+import Calendar from "../Components/Calender";
+import CardList from "../Components/CardList";
+import IntakeForm from "../Components/Dashboard/IntakeForm";
 
 const { Sider, Header, Content } = Layout;
 
@@ -20,7 +23,11 @@ const Dashboard = () => {
         return <MainContent />;
       case "2":
         return <Appointments />;
-      case "5":
+      case "4":
+        return <CardList />;
+        case "5":
+          return <IntakeForm />;  
+      case "6":
         return <Logout/>  
       default:
         return <MainContent />;
@@ -32,6 +39,7 @@ const Dashboard = () => {
       <Sider
         theme="light"
         trigger={null}
+        style={{width:'100vw'}}
         collapsible
         collapsed={collapsed}
         className="sider"

@@ -13,7 +13,7 @@ function Tabbar() {
   const user = useSelector((state) => state.auth.user);
   const nav = useNavigate();
   return (
-    <header className="header">
+    <header className="headerrr">
       <Link to={"/"} className="logo">
         pleo
       </Link>
@@ -68,7 +68,7 @@ function Tabbar() {
               {user.name}
             </Typography.Title>
             <Link to={"/Dashboard"}>
-              <Avatar icon={<UserOutlined />} size="large" className="avatar" />
+              <Avatar icon={<UserOutlined />} size="large" className="avatarr" />
             </Link>
           </Flex>
         )}
