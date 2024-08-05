@@ -20,7 +20,7 @@ import moment from "moment";
 const AppointmentForm = () => {
   const user = useSelector((state) => state.auth.user);
   const location = useLocation();
-  const [show,setShow]=useState(false);
+  const [show, setShow] = useState(false);
   const nav = useNavigate();
   const { title, providerName, selectedDate, time } = location.state;
 
@@ -75,6 +75,7 @@ const AppointmentForm = () => {
         } else {
           setErrors({ form: response.data.message });
         }
+        console.log(response.data)
       } catch (error) {
         setErrors({ form: "An error occurred. Please try again." });
       }
@@ -97,9 +98,23 @@ const AppointmentForm = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Name"
-                name="name"
-                value={user?.name || ""}
+                label="First Name"
+                name="first_name"
+                value={user?.first_name || ""}
+                InputProps={{
+                  readOnly: true,
+                }}
+                variant="outlined"
+                margin="normal"
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="last_name"
+                value={user?.last_name || ""}
                 InputProps={{
                   readOnly: true,
                 }}

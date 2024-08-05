@@ -1,4 +1,4 @@
-import { Flex, Menu } from "antd";
+import { Flex, Menu, theme } from "antd";
 import React from "react";
 import {
   UserOutlined,
@@ -7,14 +7,19 @@ import {
   OrderedListOutlined,
   CarryOutOutlined,
   FileAddOutlined,
+  SignatureOutlined,
+  InsuranceOutlined,
   BookOutlined,
 } from "@ant-design/icons";
 import { FaLeaf } from "react-icons/fa6";
-import { useMediaQuery } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import { width } from "@mui/system";
+import { is } from "date-fns/locale";
 
 const Sidebar = ({ setSelectedMenuItem }) => {
-  const isSmallScreen = useMediaQuery("(max-width: 500px)");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <>
       <Flex align="center" justify="center" className="side">
@@ -22,7 +27,6 @@ const Sidebar = ({ setSelectedMenuItem }) => {
           <FaLeaf />
         </div>
         <Menu
-          mode="inline"
           defaultSelectedKeys={["1"]}
           className="menu-bar"
           onClick={({ key }) => setSelectedMenuItem(key)}
@@ -30,7 +34,7 @@ const Sidebar = ({ setSelectedMenuItem }) => {
             {
               key: "1",
               icon: <UserOutlined />,
-              label: "Dashboard",
+              label: "Profile",
             },
             {
               key: "2",
@@ -39,10 +43,10 @@ const Sidebar = ({ setSelectedMenuItem }) => {
             },
             {
               key: "3",
-              icon: <OrderedListOutlined />,
-              label: "Forms",
+              icon: <InsuranceOutlined />,
+              label: "Insurance Form",
             },
-            
+
             {
               key: "4",
               icon: <BookOutlined />,
@@ -55,6 +59,11 @@ const Sidebar = ({ setSelectedMenuItem }) => {
             },
             {
               key: "6",
+              icon: <SignatureOutlined />,
+              label: "Consent",
+            },
+            {
+              key: "7",
               icon: <LogoutOutlined />,
               label: "Logout",
             },

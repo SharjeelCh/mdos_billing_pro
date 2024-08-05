@@ -16,25 +16,25 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import google from "../assets/google.png";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Navigate, Link as RouterLink, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { signup } from "../PHP/ApiCalls";
 
 const theme = createTheme();
 
 function SignUp() {
-  //ds
   const navigate = useNavigate();
-  const [input, setinputs] = useState({});
+  const [input, setInputs] = useState({});
+  
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const input = {
-      name: data.get("name"),
+      first_name: data.get("first_name"),
+      last_name: data.get("last_name"),
       email: data.get("email"),
       password: data.get("password"),
     };
-    setinputs((prev) => {
+    setInputs((prev) => {
       return { ...prev, ...input };
     });
 
@@ -67,11 +67,20 @@ function SignUp() {
               margin="normal"
               required
               fullWidth
-              id="name"
-              label="Full Name"
-              name="name"
-              autoComplete="name"
+              id="first_name"
+              label="First Name"
+              name="first_name"
+              autoComplete="given-name"
               autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="last_name"
+              label="Last Name"
+              name="last_name"
+              autoComplete="family-name"
             />
             <TextField
               margin="normal"
@@ -135,12 +144,13 @@ function SignUp() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <RouterLink
-                  to="/Login"
-                  style={{ color: "blue", textDecoration: "none" }}
+                <Link
+                  href="/Login"
+                  variant="body2"
+                  sx={{ color: "blue", textDecoration: "none" }}
                 >
                   Already have an account? Sign In
-                </RouterLink>
+                </Link>
               </Grid>
             </Grid>
           </Box>

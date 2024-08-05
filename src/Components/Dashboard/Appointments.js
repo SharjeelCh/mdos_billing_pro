@@ -1,24 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Card,
-  Col,
-  Row,
-  List,
-  Typography,
-  Button,
-  Space,
-  Tabs,
-  Flex,
-} from "antd";
-import {
-  CalendarOutlined,
-  ClockCircleOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { Typography, Button, Tabs, Table, Spin } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import "../../Styles/Appointments.css";
 import { useSelector } from "react-redux";
-import DialogComp from "../DialogComp";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -27,10 +12,9 @@ const Appointments = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const user = useSelector((state) => state.auth.user);
   const [appointments, setAppointments] = useState([]);
+  const [loading,setLoading]=useState(true);
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [pastAppointments, setPastAppointments] = useState([]);
-  const [showDialog, setShowDialog] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -42,9 +26,11 @@ const Appointments = () => {
           }
         );
         setAppointments(response.data.appointments || []);
+        setLoading(false)
         console.log(response.data.appointments);
       } catch (error) {
         console.error("Failed to fetch appointments:", error);
+        setLoading(false)
       }
     };
 
@@ -79,9 +65,11 @@ const Appointments = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.get(`http://localhost/api/deleteAppointment/`, {
-        params: { user_id: user.id },
-      });
+     const response= await axios.delete(`http://localhost/api/deleteAppointment/`, {
+      data: { user_id: user.id, id: id },
+    });
+      console.log(id)
+      console.log(response.data)
       setAppointments(
         appointments.filter((appointment) => appointment.id !== id)
       );
@@ -97,53 +85,84 @@ const Appointments = () => {
     }
   };
 
-  const handleCardClick = (appointment) => {
-    setSelectedAppointment(appointment);
-    setShowDialog(true);
-  };
+  const columns = [
+    {
+      title: "Provider",
+      dataIndex: "provider",
+      key: "provider",
+    },
+    {
+      title: "Date",
+      dataIndex: "appointment_date",
+      key: "appointment_date",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Time",
+      dataIndex: "appointment_time",
+      key: "appointment_time",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Type",
+      dataIndex: "appointment_type",
+      key: "appointment_type",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Notes",
+      dataIndex: "appointment_notes",
+      key: "appointment_notes",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updated_at",
+      key: "updated_at",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Patient Type",
+      dataIndex: "patient_type",
+      key: "patient_type",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleDelete(record.id)}
+        >
+          Cancel
+        </Button>
+      ),
+    },
+  ];
 
-  const renderAppointments = (appointments) => (
-    <Row gutter={[16, 16]}>
-      {appointments.map((appointment) => (
-        <Col xs={24} sm={24} md={12} lg={8} key={appointment.id}>
-          <Card
-            className="appointment-card"
-            onClick={() => {
-              handleCardClick(appointment);
-              setShowDialog(true);
-            }}
-          >
-            <List.Item>
-              <List.Item.Meta
-                title={appointment.provider}
-                description={appointment.appointment_type}
-              />
-            </List.Item>
-            <Space direction="vertical" size="middle">
-              <Text>
-                <CalendarOutlined /> {appointment.appointment_date}
-              </Text>
-              <Text>
-                <ClockCircleOutlined /> {appointment.appointment_time}
-              </Text>
-              <Button
-                type="primary"
-                danger
-                icon={<DeleteOutlined />}
-                className="cancel-button"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click event
-                  handleDelete(appointment.id);
-                }}
-              >
-                <p className="cancel-p">Cancel Appointment</p>
-              </Button>
-            </Space>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  );
+  if (loading) return <Spin style={{position:'fixed',top:'50%',bottom:'50%',left:'50%'}} spinning size="large" />;
+
 
   return (
     <div className="appointments-container">
@@ -152,19 +171,14 @@ const Appointments = () => {
       </Title>
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Upcoming" key="upcoming">
-          {showDialog && selectedAppointment && (
-            <DialogComp
-              open={showDialog}
-              onClose={() => setShowDialog(false)}
-              appointment={selectedAppointment}
-            />
-          )}
           {upcomingAppointments.length === 0 ? (
-            <Flex
+            <div
               style={{
+                display: "flex",
                 flexDirection: "column",
-                alignSelf: "flex-start",
-                width: "fit-content",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "200px",
               }}
             >
               <Title level={4} className="no-appointments">
@@ -177,33 +191,40 @@ const Appointments = () => {
               >
                 Book Appointment
               </Button>
-            </Flex>
+            </div>
           ) : (
-            renderAppointments(upcomingAppointments)
+            <Table
+              columns={columns}
+              dataSource={upcomingAppointments}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: 1200 }}
+            />
           )}
         </TabPane>
         <TabPane tab="Past" key="past">
-          {showDialog && selectedAppointment && (
-            <DialogComp
-              open={showDialog}
-              onClose={() => setShowDialog(false)}
-              appointment={selectedAppointment}
-            />
-          )}
           {pastAppointments.length === 0 ? (
-            <Flex
+            <div
               style={{
+                display: "flex",
                 flexDirection: "column",
-                alignSelf: "flex-start",
-                width: "fit-content",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "200px",
               }}
             >
               <Title level={4} className="no-appointments">
                 No Past appointments
               </Title>
-            </Flex>
+            </div>
           ) : (
-            renderAppointments(pastAppointments)
+            <Table
+              columns={columns}
+              dataSource={pastAppointments}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: 1200 }} // Adjust based on content width
+            />
           )}
         </TabPane>
       </Tabs>

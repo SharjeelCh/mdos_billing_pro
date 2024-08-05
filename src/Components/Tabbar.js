@@ -65,7 +65,7 @@ function Tabbar() {
         ) : (
           <Flex align="flex-end" gap={"0.6rem"}>
             <Typography.Title level={5} type="secondary">
-              {user.name}
+              {user.first_name}
             </Typography.Title>
             <Link to={"/Dashboard"}>
               <Avatar icon={<UserOutlined />} size="large" className="avatarr" />

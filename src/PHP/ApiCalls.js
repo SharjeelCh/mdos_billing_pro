@@ -2,9 +2,13 @@ import axios from "axios";
 import { loginState } from "./StateApiCalls";
 
 export const signup = (input) => {
-  axios.post("http://localhost/api/signup", input).then((response) => {
-    console.log("response:", response.data);
-  });
+  axios.post("http://localhost/api/signup", input)
+    .then((response) => {
+      console.log("response:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error signing up:", error);
+    });
 };
 
 export const login = (email, password, setUser) => {

@@ -26,6 +26,11 @@
   bottom: 0;
   top: 0;
 }
+@media (max-width: 480px) {
+  .menu-bar {
+    max-width: 80px;
+  }
+}
 .side {
   display: flex;
   flex-direction: column;
@@ -65,12 +70,9 @@
   color: rgba(182, 181, 181) !important;
 }
 
-.avatar{
+.avatar {
   transition: transform 0.2s;
-
 }
-.avatar:hover{
+.avatar:hover {
   transform: scale(1.05);
-
-
 }

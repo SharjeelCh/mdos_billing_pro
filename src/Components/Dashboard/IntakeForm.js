@@ -1,26 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Container,
-  TextField,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
+  Form,
+  Input,
   Button,
-  Grid,
-  MenuItem,
-  Select,
-  InputLabel,
-  Typography,
-  Box,
   Checkbox,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+  Radio,
+  Select,
+  Typography,
+  message,
+  Spin,
+} from "antd";
+import { useMediaQuery, useTheme } from "@mui/material";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
-const states = ["State 1", "State 2", "State 3"];
-const painScale = [
+const { Option } = Select;
+const { Title } = Typography;
+
+const painScaleOptions = [
   "0:Normal",
   "1:Trace",
   "2:Minimal",
@@ -33,7 +30,8 @@ const painScale = [
   "9:Horrible",
   "10:Extreme",
 ];
-const painTypes = [
+
+const painTypesOptions = [
   "sharp",
   "stabbing",
   "burning",
@@ -49,464 +47,270 @@ const painTypes = [
   "constant",
   "others",
 ];
-const bodyParts = ["Head", "Neck", "Shoulder", "Back", "Legs", "Arms"];
+
+const bodyPartsOptions = ["Head", "Neck", "Shoulder", "Back", "Legs", "Arms"];
 
 const IntakeForm = () => {
+  const user = useSelector((state) => state.auth.user);
+  const patientId = user.id;
+  const [form] = Form.useForm();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formValues, setFormValues] = useState({});
   const theme = useTheme();
+  const [loading, setLoading] = useState(true);
+  const [firstTime, setFirstTime] = useState(true);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [formStep, setFormStep] = useState(1);
-  const [formData, setFormData] = useState({
-    state: "",
-    city: "",
-    zip: "",
-    emergencyContactLastName: "",
-    emergencyContactFirstName: "",
-    emergencyContactRelationship: "",
-    emergencyContactPhone: "",
-    insurance: "",
-    chiefComplaint: "",
-    conditionDuration: "",
-    painScale: "",
-    painType: [],
-    siteOfPain: "",
-    painBetter: [],
-    currentMedicalConditions: "",
-    pastMedicalConditions: "",
-    familyHistory: "",
-    currentInjuries: "",
-    pastInjuries: "",
-    allergies: "",
-    icd: "",
-  });
+  useEffect(() => {
+    if (patientId) {
+      axios
+        .get(`http://localhost/api/getPatientIntake/`, {
+          params: { patient_id: patientId },
+        })
+        .then((response) => {
+          if (response.data.status == "error") {
+            setFirstTime(true);
+            setLoading(false);
+          } else {
+            setFirstTime(false);
+            setLoading(false);
+          }
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+          const responseData = response.data.data;
+          responseData.painScale = painScaleOptions[responseData.painScale];
 
-    if (type === "checkbox") {
-      setFormData((prevState) => {
-        if (name === "painType" || name === "painBetter") {
-          const values = prevState[name];
-          return {
-            ...prevState,
-            [name]: checked
-              ? [...values, value]
-              : values.filter((item) => item !== value),
-          };
-        }
-        return {
-          ...prevState,
-          [name]: checked ? [...prevState[name], value] : prevState[name].filter((item) => item !== value),
-        };
-      });
-    } else {
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
+          form.setFieldsValue({ ...responseData });
+          setFormValues(responseData);
+        })
+        .catch((error) => {
+          setLoading(false);
+          console.error("Error fetching patient intake information:", error);
+          message.error("Failed to fetch patient intake information");
+        });
     }
+  }, [patientId, form]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      form.setFieldsValue(formValues);
+    }
+  }, [isEditing, formValues, form]);
+
+  const onFinish = (values) => {
+    console.log("Form values on submit:", values);
+    const apiCall = !firstTime
+      ? axios.post(`http://localhost/api/updatePatientIntake/`, {
+          ...values,
+          patient_id: patientId,
+        })
+      : axios.post(`http://localhost/api/insertPatientIntake/`, {
+          ...values,
+          patient_id: patientId,
+        });
+
+    apiCall
+      .then((response) => {
+        console.log("API response:", response.data);
+        message.success("Patient intake information saved successfully");
+        setIsEditing(false);
+        setFormValues(values);
+      })
+      .catch((error) => {
+        console.error("Error saving patient intake information:", error);
+        message.error("Failed to save patient intake information");
+      });
   };
 
-  const handleNext = () => {
-    setFormStep(formStep + 1);
+  const handleEdit = (e) => {
+    e.preventDefault();
+    setIsEditing(true);
   };
 
-  const handleBack = () => {
-    setFormStep(formStep - 1);
+  const handleCancel = () => {
+    form.setFieldsValue(formValues);
+    setIsEditing(false);
   };
+
+  if (loading)
+    return (
+      <Spin
+        style={{ position: "fixed", top: "50%", left: "50%" }}
+        spinning
+        size="large"
+      />
+    );
 
   return (
-    <Container>
-      <Box my={4}>
-        <Typography variant="h4" gutterBottom fontFamily={'revert-layer'}>
-          {formStep === 1 ? "Intake Form" : "Pain Assessment Form"}
-        </Typography>
-        {formStep === 1 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>State</InputLabel>
-                <Select
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                >
-                  {states.map((state) => (
-                    <MenuItem key={state} value={state}>
-                      {state}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="city"
-                label="City"
-                fullWidth
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="zip"
-                label="Zip"
-                fullWidth
-                value={formData.zip}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="emergencyContactLastName"
-                label="Emergency Contact Last Name"
-                fullWidth
-                value={formData.emergencyContactLastName}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="emergencyContactFirstName"
-                label="Emergency Contact First Name"
-                fullWidth
-                value={formData.emergencyContactFirstName}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="emergencyContactRelationship"
-                label="Emergency Contact Relationship"
-                fullWidth
-                value={formData.emergencyContactRelationship}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="emergencyContactPhone"
-                label="Emergency Contact Phone"
-                fullWidth
-                value={formData.emergencyContactPhone}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">Do you have insurance?</FormLabel>
-                <RadioGroup
-                  row={!isMobile}
-                  name="insurance"
-                  value={formData.insurance}
-                  onChange={handleChange}
-                >
-                  <FormControlLabel
-                    value="uninsured"
-                    control={<Radio />}
-                    label="Uninsured"
-                  />
-                  <FormControlLabel
-                    value="one_insurance"
-                    control={<Radio />}
-                    label="One Insurance"
-                  />
-                  <FormControlLabel
-                    value="two_insurance"
-                    control={<Radio />}
-                    label="Two Insurance"
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={handleNext}>
-                Next
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-        {formStep === 2 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="chiefComplaint"
-                label="Chief Complaint"
-                fullWidth
-                value={formData.chiefComplaint}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="conditionDuration"
-                label="How long have you had this condition?"
-                fullWidth
-                value={formData.conditionDuration}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              {isMobile ? (
-                <FormControl fullWidth>
-                  <InputLabel>Pain Scale</InputLabel>
-                  <Select
-                    name="painScale"
-                    value={formData.painScale}
-                    onChange={handleChange}
-                  >
-                    {painScale.map((num) => (
-                      <MenuItem key={num} value={num}>
-                        {num}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">Pain Scale</FormLabel>
-                  <RadioGroup
-                    row
-                    name="painScale"
-                    style={{ flex: 1, flexDirection: "row" }}
-                    value={formData.painScale}
-                    onChange={handleChange}
-                  >
-                    {painScale.map((num) => (
-                      <FormControlLabel
-                        key={num}
-                        value={num}
-                        control={<Radio />}
-                        label={num}
-                      />
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-              )}
-            </Grid>
-            <Grid item xs={12}>
-              {isMobile ? (
-                <FormControl fullWidth>
-                  <InputLabel>Pain Type</InputLabel>
-                  <Select
-                    multiple
-                    name="painType"
-                    value={formData.painType}
-                    onChange={handleChange}
-                    renderValue={(selected) => selected.join(', ')}
-                  >
-                    {painTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        <Checkbox checked={formData.painType.includes(type)} />
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">Pain Type</FormLabel>
-                  <Box display="flex" flexWrap="wrap">
-                    {painTypes.map((type) => (
-                      <FormControlLabel
-                        key={type}
-                        control={
-                          <Checkbox
-                            name="painType"
-                            value={type}
-                            checked={formData.painType.includes(type)}
-                            onChange={handleChange}
-                          />
-                        }
-                        label={type}
-                      />
-                    ))}
-                  </Box>
-                </FormControl>
-              )}
-            </Grid>
-            <Grid item xs={12}>
-              {isMobile ? (
-                <FormControl fullWidth>
-                  <InputLabel>Site of Pain</InputLabel>
-                  <Select
-                    name="siteOfPain"
-                    value={formData.siteOfPain}
-                    onChange={handleChange}
-                  >
-                    {bodyParts.map((part) => (
-                      <MenuItem key={part} value={part}>
-                        {part}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">Site of Pain</FormLabel>
-                  <RadioGroup
-                    row
-                    name="siteOfPain"
-                    value={formData.siteOfPain}
-                    onChange={handleChange}
-                  >
-                    {bodyParts.map((part) => (
-                      <FormControlLabel
-                        key={part}
-                        value={part}
-                        control={<Radio />}
-                        label={part}
-                      />
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-              )}
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend">
-                  What makes the pain feel better?
-                </FormLabel>
-                <Box display="flex" flexWrap="wrap">
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="painBetter"
-                        value="heat"
-                        checked={formData.painBetter.includes("heat")}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Heat"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="painBetter"
-                        value="ice"
-                        checked={formData.painBetter.includes("ice")}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Ice"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="painBetter"
-                        value="rest"
-                        checked={formData.painBetter.includes("rest")}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Rest"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="painBetter"
-                        value="activity"
-                        checked={formData.painBetter.includes("activity")}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Activity"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        name="painBetter"
-                        value="medication"
-                        checked={formData.painBetter.includes("medication")}
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Medication"
-                  />
-                </Box>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="currentMedicalConditions"
-                label="Current Medical Conditions"
-                fullWidth
-                value={formData.currentMedicalConditions}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="pastMedicalConditions"
-                label="Past Medical Conditions"
-                fullWidth
-                value={formData.pastMedicalConditions}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="familyHistory"
-                label="Family History"
-                fullWidth
-                value={formData.familyHistory}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="currentInjuries"
-                label="Current Injuries"
-                fullWidth
-                value={formData.currentInjuries}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="pastInjuries"
-                label="Past Injuries"
-                fullWidth
-                value={formData.pastInjuries}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="allergies"
-                label="Allergies"
-                fullWidth
-                value={formData.allergies}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="icd"
-                label="ICD Code"
-                fullWidth
-                value={formData.icd}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={handleBack}>
-                Back
+    <div
+      style={{
+        maxWidth: "70vw",
+        margin: "0 auto",
+        padding: "20px",
+        backgroundColor: "#f7f7f7",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <Title level={2}>Intake Form</Title>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form.Item
+          name="chiefComplaint"
+          label="Chief Complaint"
+          rules={[
+            { required: true, message: "Please input your chief complaint!" },
+          ]}
+        >
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item
+          name="conditionDuration"
+          label="How long have you had this condition?"
+          rules={[
+            {
+              required: true,
+              message: "Please input the duration of your condition!",
+            },
+          ]}
+        >
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item
+          name="painScale"
+          label="Pain Scale"
+          rules={[
+            { required: true, message: "Please select your pain scale!" },
+          ]}
+        >
+          {isMobile ? (
+            <Select disabled={!isEditing}>
+              {painScaleOptions.map((option) => (
+                <Option key={option} value={option}>
+                  {option}
+                </Option>
+              ))}
+            </Select>
+          ) : (
+            <Radio.Group disabled={!isEditing}>
+              {painScaleOptions.map((option) => (
+                <Radio key={option} value={option}>
+                  {option}
+                </Radio>
+              ))}
+            </Radio.Group>
+          )}
+        </Form.Item>
+        <Form.Item
+          name="painType"
+          label="Pain Type"
+          rules={[{ required: true, message: "Please select your pain type!" }]}
+        >
+          {isMobile ? (
+            <Select mode="multiple" disabled={!isEditing}>
+              {painTypesOptions.map((option) => (
+                <Option key={option} value={option}>
+                  {option}
+                </Option>
+              ))}
+            </Select>
+          ) : (
+            <Checkbox.Group disabled={!isEditing}>
+              {painTypesOptions.map((option) => (
+                <Checkbox key={option} value={option}>
+                  {option}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+          )}
+        </Form.Item>
+        <Form.Item
+          name="siteOfPain"
+          label="Site of Pain"
+          rules={[
+            { required: true, message: "Please select the site of your pain!" },
+          ]}
+        >
+          {isMobile ? (
+            <Select disabled={!isEditing}>
+              {bodyPartsOptions.map((option) => (
+                <Option key={option} value={option}>
+                  {option}
+                </Option>
+              ))}
+            </Select>
+          ) : (
+            <Radio.Group disabled={!isEditing}>
+              {bodyPartsOptions.map((option) => (
+                <Radio key={option} value={option}>
+                  {option}
+                </Radio>
+              ))}
+            </Radio.Group>
+          )}
+        </Form.Item>
+        <Form.Item name="painBetter" label="What makes the pain feel better?">
+          <Checkbox.Group disabled={!isEditing}>
+            <Checkbox value="heat">Heat</Checkbox>
+            <Checkbox value="ice">Ice</Checkbox>
+            <Checkbox value="rest">Rest</Checkbox>
+            <Checkbox value="activity">Activity</Checkbox>
+            <Checkbox value="medication">Medication</Checkbox>
+          </Checkbox.Group>
+        </Form.Item>
+        <Form.Item
+          name="currentMedicalConditions"
+          label="Current Medical Conditions"
+        >
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="pastMedicalConditions" label="Past Medical Conditions">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="familyHistory" label="Family History">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="currentInjuries" label="Current Injuries">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="pastInjuries" label="Past Injuries">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="allergies" label="Allergies">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item name="icd" label="ICD Code">
+          <Input disabled={!isEditing} />
+        </Form.Item>
+        <Form.Item style={{ width: "100%", textAlign: "end" }}>
+          {isEditing ? (
+            <>
+              <Button type="primary" htmlType="submit">
+                Save
               </Button>
               <Button
-                variant="contained"
-                color="primary"
-                onClick={handleNext}
-                style={{ marginLeft: "8px" }}
+                type="default"
+                onClick={handleCancel}
+                style={{ marginLeft: "10px" }}
               >
-                Submit
+                Cancel
               </Button>
-            </Grid>
-          </Grid>
-        )}
-      </Box>
-    </Container>
+            </>
+          ) : (
+            <Button
+              type="default"
+              style={{
+                fontWeight: "bold",
+                width: "100%",
+                borderColor: "#1890ff",
+                color: "#1890ff",
+              }}
+              onClick={handleEdit}
+            >
+              Edit
+            </Button>
+          )}
+        </Form.Item>
+      </Form>
+    </div>
   );
 };
 
