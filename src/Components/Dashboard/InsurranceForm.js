@@ -67,8 +67,9 @@ const InsuranceForm = () => {
             params: { patient_id: user.id },
           }
         );
+        console.log(response.data);
         if (response.data.status === "success") {
-          const insuranceData = response.data.data[0];
+          const insuranceData = response.data.data;
           form.setFieldsValue({
             relation: insuranceData.relation,
             planName: insuranceData.plan_name,
@@ -81,7 +82,7 @@ const InsuranceForm = () => {
             address: insuranceData.address,
             sex: insuranceData.sex,
           });
-          const blob = new Blob([response.data.pdf], {
+          const blob = new Blob([insuranceData.note_pdf], {
             type: "application/pdf",
           });
           const url = URL.createObjectURL(blob);
@@ -105,10 +106,10 @@ const InsuranceForm = () => {
         setLoading(false);
       }
     };
-
+  
     fetchInsuranceInfo();
   }, [user.id, form]);
-
+  
   useEffect(() => {
     const fetchSecondaryInsuranceInfo = async () => {
       try {
@@ -119,8 +120,10 @@ const InsuranceForm = () => {
             params: { patient_id: user.id },
           }
         );
+        console.log("secondary: ", response.data);
+  
         if (response.data.status === "success") {
-          const insuranceData = response.data.data[0];
+          const insuranceData = response.data.data;
           secondaryForm.setFieldsValue({
             secondaryRelation: insuranceData.relation,
             secondaryPlanName: insuranceData.plan_name,
@@ -133,7 +136,7 @@ const InsuranceForm = () => {
             secondaryAddress: insuranceData.address,
             secondarySex: insuranceData.sex,
           });
-          const blob = new Blob([response.data.pdf], {
+          const blob = new Blob([insuranceData.note_pdf], {
             type: "application/pdf",
           });
           const url = URL.createObjectURL(blob);
@@ -157,9 +160,10 @@ const InsuranceForm = () => {
         setLoading(false);
       }
     };
-
+  
     fetchSecondaryInsuranceInfo();
   }, [user.id, secondaryForm]);
+  
 
   useEffect(() => {
     if (patientInfo) {
@@ -292,6 +296,7 @@ const InsuranceForm = () => {
         },
       })
       .then((response) => {
+        console.log(response);
         if (response.data.status === "success") {
           message.success("Insurance info submitted successfully");
         } else {
