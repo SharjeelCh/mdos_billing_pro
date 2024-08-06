@@ -11,6 +11,7 @@ import {
   Select,
   Switch,
   Spin,
+  DatePicker,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -21,6 +22,7 @@ const { Option } = Select;
 const InsuranceForm = () => {
   const user = useSelector((state) => state.auth.user);
   const [form] = Form.useForm();
+  const [secondaryForm] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [secondaryFileList, setSecondaryFileList] = useState([]);
   const [insuranceType, setInsuranceType] = useState("");
@@ -30,35 +32,41 @@ const InsuranceForm = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost/api/getPatientInfo/`, {
-        params: { patient_id: user.id },
-      })
-      .then((response) => {
+    const fetchPatientInfo = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost/api/getPatientInfo/`,
+          { params: { patient_id: user.id } }
+        );
+        console.log(response.data);
         if (response.data.status === "success") {
-          setPatientInfo(response.data.data);
-          setLoading(false);
+          setPatientInfo(response.data);
         } else {
-          message.error("Failed to fetch patient info");
-          setLoading(false);
+          message.error(
+            response.data.message || "Failed to fetch patient info"
+          );
         }
-      })
-      .catch((error) => {
+      } catch (error) {
+        console.error("Error fetching patient info:", error);
         message.error("Failed to fetch patient info");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchPatientInfo();
   }, [user.id]);
 
   useEffect(() => {
     const fetchInsuranceInfo = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost/api/getInsuranceInfo/', {
-          params: { patient_id: user.id },
-        });
-        console.log('Full Response:', response);
-        if (response.data.status === 'success') {
-          console.log('Insurance Info:', response.data.data);
+        const response = await axios.get(
+          "http://localhost/api/getInsuranceInfo/",
+          {
+            params: { patient_id: user.id },
+          }
+        );
+        if (response.data.status === "success") {
           const insuranceData = response.data.data[0];
           form.setFieldsValue({
             relation: insuranceData.relation,
@@ -72,35 +80,95 @@ const InsuranceForm = () => {
             address: insuranceData.address,
             sex: insuranceData.sex,
           });
-          if (insuranceData.note_pdf) {
-            setFileList([
-              {
-                uid: '-1',
-                name: 'insurance.pdf',
-                status: 'done',
-                url: `data:application/pdf;base64,${insuranceData.note_pdf}`,
-              },
-            ]);
-          }
+          const blob = new Blob([response.data.data], {
+            type: "application/pdf",
+          });
+          const url = URL.createObjectURL(blob);
+          setFileList([
+            {
+              uid: "-1",
+              name: "Insurance Card.pdf",
+              status: "done",
+              url: url,
+            },
+          ]);
+          console.log(blob);
         } else {
-          message.error(response.data.message || 'Failed to fetch insurance info');
+          message.error(
+            response.data.message || "Failed to fetch insurance info"
+          );
         }
       } catch (error) {
-        console.error('Error fetching insurance info:', error);
-        message.error('Failed to fetch insurance info');
+        console.error("Error fetching insurance info:", error);
+        message.error("Failed to fetch insurance info");
       } finally {
         setLoading(false);
       }
     };
 
     fetchInsuranceInfo();
-  }, [user.id]);
-  
+  }, [user.id, form]);
+
+  useEffect(() => {
+    const fetchInsuranceInfo = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "http://localhost/api/getInsuranceInfoS/",
+          {
+            params: { patient_id: user.id },
+          }
+        );
+        if (response.data.status === "success") {
+          const insuranceData = response.data.data[0];
+          console.log("Secondary Insurance data:", insuranceData);
+
+          secondaryForm.setFieldsValue({
+            secondaryRelation: insuranceData.relation,
+            secondaryPlanName: insuranceData.plan_name,
+            secondaryGroupPolicy: insuranceData.group_policy_number,
+            secondaryMemberId: insuranceData.member_id,
+            secondaryFirstName: insuranceData.first_name,
+            secondaryLastName: insuranceData.last_name,
+            secondaryMiddleName: insuranceData.middle_name,
+            secondaryDob: insuranceData.dob,
+            secondaryAddress: insuranceData.address,
+            secondarySex: insuranceData.sex,
+          });
+          const blob = new Blob([response.data.data], {
+            type: "application/pdf",
+          });
+          const url = URL.createObjectURL(blob);
+          setSecondaryFileList([
+            {
+              uid: "-1",
+              name: "Insurance Card.pdf",
+              status: "done",
+              url: url,
+            },
+          ]);
+          console.log(blob);
+        } else {
+          message.error(
+            response.data.message || "Failed to fetch secondary insurance info"
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching secondary insurance info:", error);
+        message.error("Failed to fetch secondary insurance info");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsuranceInfo();
+  }, [user.id, secondaryForm]);
 
   useEffect(() => {
     if (patientInfo) {
-      const { DOB, sex } = patientInfo;
+      const { DOB, sex } = patientInfo.data;
       const { first_name, last_name } = user;
+      console.log("Patient Info:", patientInfo.data);
 
       switch (insuranceType) {
         case "S1":
@@ -115,8 +183,8 @@ const InsuranceForm = () => {
           form.setFieldsValue({
             lastName: last_name,
             sex: sex === "M" ? "F" : "M",
-            firstName: "", // Clear first name
-            dob: "", // Clear date of birth
+            firstName: "",
+            dob: "",
           });
           break;
         case "C":
@@ -132,16 +200,16 @@ const InsuranceForm = () => {
           break;
       }
     }
-  }, [insuranceType, patientInfo, user, form]);
+  }, [patientInfo, insuranceType, user, form]);
 
   useEffect(() => {
     if (showSecondaryForm && patientInfo) {
-      const { DOB, sex } = patientInfo;
+      const { DOB, sex } = patientInfo.data;
       const { first_name, last_name } = user;
 
       switch (secondaryInsuranceType) {
         case "S1":
-          form.setFieldsValue({
+          secondaryForm.setFieldsValue({
             secondaryFirstName: first_name,
             secondaryLastName: last_name,
             secondaryDob: DOB,
@@ -149,7 +217,7 @@ const InsuranceForm = () => {
           });
           break;
         case "S2":
-          form.setFieldsValue({
+          secondaryForm.setFieldsValue({
             secondaryLastName: last_name,
             secondarySex: sex === "M" ? "F" : "M",
             secondaryFirstName: "", // Clear first name
@@ -157,7 +225,7 @@ const InsuranceForm = () => {
           });
           break;
         case "C":
-          form.setFieldsValue({
+          secondaryForm.setFieldsValue({
             secondaryLastName: last_name,
             secondaryFirstName: "", // Clear first name
             secondaryDob: "", // Clear date of birth
@@ -165,7 +233,7 @@ const InsuranceForm = () => {
           });
           break;
         default:
-          form.resetFields([
+          secondaryForm.resetFields([
             "secondaryFirstName",
             "secondaryLastName",
             "secondaryDob",
@@ -174,7 +242,13 @@ const InsuranceForm = () => {
           break;
       }
     }
-  }, [secondaryInsuranceType, showSecondaryForm, patientInfo, user, form]);
+  }, [
+    secondaryInsuranceType,
+    showSecondaryForm,
+    patientInfo,
+    user,
+    secondaryForm,
+  ]);
 
   const handleUploadChange = ({ fileList }) => {
     setFileList(fileList);
@@ -196,7 +270,6 @@ const InsuranceForm = () => {
     return isPdf && isLt5MB;
   };
 
-  // Adjust the code to ensure file content is being sent as FormData
   const onFinish = (values) => {
     setLoading(true);
 
@@ -213,7 +286,8 @@ const InsuranceForm = () => {
     formData.append("address", values.address);
     formData.append("sex", values.sex);
     formData.append("note_pdf", fileList[0].originFileObj);
-    formData.append("notetype", "insurance");
+    formData.append("notetype", "Primary insurance");
+    formData.append("insurance_type", "Primary");
 
     axios
       .post("http://localhost/api/insertInsuranceInfo", formData, {
@@ -224,9 +298,9 @@ const InsuranceForm = () => {
       .then((response) => {
         if (response.data.status === "success") {
           message.success("Insurance info submitted successfully");
-          form.resetFields();
-          setFileList([]);
-          setSecondaryFileList([]);
+          //  form.resetFields();
+          // setFileList([]);
+          //  setSecondaryFileList([]);
           setShowSecondaryForm(false);
         } else {
           message.error(
@@ -244,41 +318,37 @@ const InsuranceForm = () => {
 
   const onSecondaryFinish = (values) => {
     setLoading(true);
-    const data = {
-      patient_id: user.id,
-      relation: values.secondaryRelation,
-      plan_name: values.secondaryPlanName,
-      group_policy_number: values.secondaryGroupPolicy,
-      member_id: values.secondaryMemberId,
-      first_name: values.secondaryFirstName,
-      last_name: values.secondaryLastName,
-      middle_name: values.secondaryMiddleName,
-      dob: values.secondaryDob,
-      address: values.secondaryAddress,
-      sex: values.secondarySex,
-      note_pdf: secondaryFileList[0]?.originFileObj, // Updated to match the backend expected field
-    };
 
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
+    const formData = new FormData();
+    formData.append("patient_id", user.id);
+    formData.append("relation", values.secondaryRelation);
+    formData.append("plan_name", values.secondaryPlanName);
+    formData.append("group_policy_number", values.secondaryGroupPolicy);
+    formData.append("member_id", values.secondaryMemberId);
+    formData.append("first_name", values.secondaryFirstName);
+    formData.append("last_name", values.secondaryLastName);
+    formData.append("middle_name", values.secondaryMiddleName);
+    formData.append("dob", values.secondaryDob);
+    formData.append("address", values.secondaryAddress);
+    formData.append("sex", values.secondarySex);
+    formData.append("notetype", "Secondary insurance");
+    formData.append("insurance_type", "Secondary");
 
+    formData.append("note_pdf", secondaryFileList[0].originFileObj);
     axios
-      .post(
-        `http://localhost/api/insertInsuranceInfo/`,
-        JSON.stringify(data),
-        config
-      )
+      .post(`http://localhost/api/insertInsuranceInfoS/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         console.log("Secondary Insurance Response:", response);
         if (response.data.status === "success") {
           message.success("Secondary insurance info submitted successfully");
-          form.resetFields();
-          setFileList([]);
-          setSecondaryFileList([]);
-          setShowSecondaryForm(false);
+          secondaryForm.resetFields();
+          // setFileList([]);
+          // setSecondaryFileList([]);
+          // setShowSecondaryForm(false);
         } else {
           message.error(
             response.data.message || "Failed to submit secondary insurance info"
@@ -316,11 +386,7 @@ const InsuranceForm = () => {
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
         Patient Insurance Information
       </h2>
-      <Form
-        form={form}
-        onFinish={showSecondaryForm ? onSecondaryFinish : onFinish}
-        layout="vertical"
-      >
+      <Form form={form} onFinish={onFinish} layout="vertical">
         <Form.Item
           label="Insurance Card (Front and Back)"
           name="note_pdf"
@@ -433,7 +499,7 @@ const InsuranceForm = () => {
                 { required: true, message: "Please enter your date of birth!" },
               ]}
             >
-              <Input />
+              <Input type="date" width={"100%"} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12}>
@@ -458,23 +524,39 @@ const InsuranceForm = () => {
             <Option value="F">Female</Option>
           </Select>
         </Form.Item>
+        <Form.Item style={{ textAlign: "center" }}>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Submit
+          </Button>
+        </Form.Item>
         <Form.Item label="Add Secondary Insurance">
           <Switch checked={showSecondaryForm} onChange={setShowSecondaryForm} />
         </Form.Item>
-
-        {showSecondaryForm && (
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "20px",
-              backgroundColor: "#e6f7ff",
-              borderRadius: "8px",
-            }}
+      </Form>
+      {showSecondaryForm && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "20px",
+            backgroundColor: "#e6f7ff",
+            borderRadius: "8px",
+          }}
+        >
+          <h3>Secondary Insurance Information</h3>
+          <Form
+            form={secondaryForm}
+            onFinish={onSecondaryFinish}
+            layout="vertical"
           >
-            <h3>Secondary Insurance Information</h3>
             <Form.Item
               label="Insurance Card (Front and Back)"
               name="secondaryInsuranceCard"
+              rules={[
+                {
+                  required: true,
+                  message: "Please upload your insurance card!",
+                },
+              ]}
             >
               <Upload
                 fileList={secondaryFileList}
@@ -581,7 +663,7 @@ const InsuranceForm = () => {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input type="date" />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12}>
@@ -606,14 +688,16 @@ const InsuranceForm = () => {
                 <Option value="F">Female</Option>
               </Select>
             </Form.Item>
-          </div>
-        )}
-        <Form.Item style={{ textAlign: "center" }}>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+            {showSecondaryForm && (
+              <Form.Item style={{ textAlign: "center" }}>
+                <Button type="primary" htmlType="submit" loading={loading}>
+                  Submit
+                </Button>
+              </Form.Item>
+            )}
+          </Form>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Container,
   Avatar,
@@ -10,58 +10,29 @@ import {
   Grid,
   Box,
   Typography,
+  Alert, // Import Alert component
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import google from "../assets/google.png";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
-import axios from "axios";
-//import { login } from "../PHP/ApiCalls";
-import { login } from "../auth/authSlice";
-
 import { useDispatch, useSelector } from "react-redux";
+import { login } from "../auth/authSlice";
 
 const theme = createTheme();
 
 function Login() {
   const nav = useNavigate();
-  const [user, setUser] = useState({});
-  const [password, setPassword] = useState("newpass");
   const dispatch = useDispatch();
   const { isAuthenticated, status, error } = useSelector((state) => state.auth);
-
-  const getUser = () => {
-    axios
-      .get("http://localhost/api/user")
-      .then((response) => {
-        setUser(response.data);
-        console.log(user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const changePassword = () => {
-    axios
-      .put(`http://localhost/api/user/${"sharjeel"}/edit`, {
-        name: "sharjeeel",
-        password: password,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
   useEffect(() => {
     if (isAuthenticated) {
       nav("/");
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, nav]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -69,11 +40,7 @@ function Login() {
       email: data.get("email"),
       password: data.get("password"),
     };
-    setUser((prev) => {
-      return { ...prev, ...input };
-    });
-    console.log(input.email, input.password);
-    //  login(input.email, input.password, setUser);
+
     dispatch(login(input));
   };
 
@@ -95,6 +62,13 @@ function Login() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -125,6 +99,7 @@ function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={status === "loading"}
             >
               Sign In
             </Button>
@@ -161,7 +136,7 @@ function Login() {
                 <RouterLink
                   to="/ForgetPassword"
                   variant="body2"
-                  style={{ color: "blue", textDecoration: "none" }}
+                  style={{ color: "blue", textDecoration: "none",fontSize:"0.75rem" }}
                 >
                   Forgot password?
                 </RouterLink>
@@ -169,7 +144,7 @@ function Login() {
               <Grid item>
                 <RouterLink
                   to="/SignUp"
-                  style={{ color: "blue", textDecoration: "none" }}
+                  style={{ color: "blue", textDecoration: "none",fontSize:"0.75rem" }}
                 >
                   Don't have an account? Sign Up
                 </RouterLink>

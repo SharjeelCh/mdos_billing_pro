@@ -35,7 +35,7 @@ export const getUser = (email) => {
       .get("http://localhost/api/searchUserByEmail/", { params: { email } })
       .then((response) => {
         const { user } = response.data;
-        resolve(user.name);
+        resolve(user.first_name);
       })
       .catch((error) => {
         console.log(error);

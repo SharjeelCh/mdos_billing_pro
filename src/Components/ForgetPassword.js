@@ -5,14 +5,18 @@ import { getUser, changePassword } from "../PHP/ApiCalls";
 import { useNavigate } from "react-router-dom";
 
 const ForgetPassword = () => {
-  const [showchange, setShowchange] = useState(false);
+  const [showChange, setShowChange] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const nav = useNavigate();
 
-  const handleemail = (event) => {
+  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  const handleEmail = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setEmail(data.get("email"));
@@ -20,10 +24,10 @@ const ForgetPassword = () => {
       .then((response) => {
         setName(response);
         if (response) {
-          setShowchange(!showchange);
+          setShowChange(true);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setError("Email not found");
       });
   };
@@ -31,29 +35,38 @@ const ForgetPassword = () => {
   const changePass = (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    const newpass = data.get("newpassword");
+    const newPass = data.get("newpassword");
     const confirmPass = data.get("newpasswordConfirm");
 
-    if (newpass !== confirmPass) {
+    if (!PASSWORD_REGEX.test(newPass)) {
+      setPasswordError("Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.");
+      return;
+    }
+
+    if (newPass !== confirmPass) {
       setPasswordError("Passwords do not match");
       return;
     }
 
-    changePassword(email, newpass)
+    changePassword(email, newPass)
       .then((response) => {
-        if (response) setPasswordError("");
-        nav("/Login");
+        if (response) {
+          setPasswordError("");
+          nav("/Login");
+        }
       })
-      .catch((error) => {});
+      .catch(() => {
+        setPasswordError("Failed to change password. Please try again.");
+      });
   };
 
   return (
     <Box
       className="cont"
       component={"form"}
-      onSubmit={showchange ? changePass : handleemail}
+      onSubmit={showChange ? changePass : handleEmail}
     >
-      {!showchange ? (
+      {!showChange ? (
         <div className="inner">
           <h2 className="head">Forgot Password?</h2>
           <TextField
@@ -66,7 +79,7 @@ const ForgetPassword = () => {
             id="email"
             autoComplete="current-email"
           />
-          {error && <p>{error}</p>}
+          {error && <p className="error" style={{fontSize:"0.75rem"}}>{error}</p>}
           <Button
             type="submit"
             fullWidth
@@ -97,7 +110,7 @@ const ForgetPassword = () => {
             type="password"
             id="newpasswordConfirm"
           />
-          {passwordError && <p>{passwordError}</p>}
+          {passwordError && <p className="error" style={{fontSize:"0.75rem"}}>{passwordError}</p>}
           <Button
             type="submit"
             fullWidth
