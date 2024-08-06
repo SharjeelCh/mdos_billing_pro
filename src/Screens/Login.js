@@ -103,40 +103,17 @@ function Login() {
             >
               Sign In
             </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{ mt: 1, mb: 2 }}
-              startIcon={
-                <img
-                  src={google}
-                  alt="Google"
-                  style={{ width: "20px", height: "20px" }}
-                />
-              }
-            >
-              Sign in with Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{ mt: 1, mb: 2 }}
-              startIcon={
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
-                  alt="Facebook"
-                  style={{ width: "20px", height: "20px" }}
-                />
-              }
-            >
-              Sign in with Facebook
-            </Button>
+
             <Grid container>
               <Grid item xs>
                 <RouterLink
                   to="/ForgetPassword"
                   variant="body2"
-                  style={{ color: "blue", textDecoration: "none",fontSize:"0.75rem" }}
+                  style={{
+                    color: "blue",
+                    textDecoration: "none",
+                    fontSize: "0.75rem",
+                  }}
                 >
                   Forgot password?
                 </RouterLink>
@@ -144,7 +121,11 @@ function Login() {
               <Grid item>
                 <RouterLink
                   to="/SignUp"
-                  style={{ color: "blue", textDecoration: "none",fontSize:"0.75rem" }}
+                  style={{
+                    color: "blue",
+                    textDecoration: "none",
+                    fontSize: "0.75rem",
+                  }}
                 >
                   Don't have an account? Sign Up
                 </RouterLink>

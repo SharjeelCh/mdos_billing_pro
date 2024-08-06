@@ -2,11 +2,17 @@ import React from "react";
 import Card from "./Card";
 import "../Styles/CardList.css";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const CardList = () => {
+  const user = useSelector((state) => state.auth.user);
+  const loginState =  user ? true : false;
   const navigation = useNavigate();
-  const handleClick = (title,providerName) => {
-    navigation("/Appointment", { state: { title,providerName } });
+  const handleClick = (title, providerName) => {
+    navigation(
+      loginState ? "/Appointment" : "/Login",
+      loginState && { state: { title, providerName } } 
+    );
   };
   const cards = [
     {
@@ -51,7 +57,7 @@ const CardList = () => {
           image={card.image}
           title={card.title}
           description={card.description}
-          onClick={() => handleClick(card.title,card.providerName)}
+          onClick={() => handleClick(card.title, card.providerName)}
         />
       ))}
     </div>

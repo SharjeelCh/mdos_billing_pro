@@ -1,4 +1,3 @@
-// src/SignUp.js
 import React, { useState } from "react";
 import {
   Container,
@@ -8,15 +7,14 @@ import {
   TextField,
   FormControlLabel,
   Checkbox,
-  Link,
   Grid,
   Box,
   Typography,
+  Alert,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import google from "../assets/google.png";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../PHP/ApiCalls";
 
 const theme = createTheme();
@@ -24,7 +22,9 @@ const theme = createTheme();
 function SignUp() {
   const navigate = useNavigate();
   const [input, setInputs] = useState({});
-  
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState("error"); // 'error' or 'success'
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -38,10 +38,18 @@ function SignUp() {
       return { ...prev, ...input };
     });
 
-    console.log({
-      input,
-    });
-    signup(input);
+    signup(input)
+      .then((response) => {
+        setMessage(response.message);
+        setSeverity("success");
+        setTimeout(() => {
+          //navigate("/login");
+        }, 2000); // Redirect after 2 seconds
+      })
+      .catch((error) => {
+        setMessage(error.message);
+        setSeverity("error");
+      });
   };
 
   return (
@@ -62,6 +70,11 @@ function SignUp() {
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
+          {message && (
+            <Alert severity={severity} sx={{ width: "100%", mt: 2 }}>
+              {message}
+            </Alert>
+          )}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -114,40 +127,16 @@ function SignUp() {
             >
               Sign Up
             </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{ mt: 1, mb: 2 }}
-              startIcon={
-                <img
-                  src={google}
-                  alt="Google"
-                  style={{ width: "20px", height: "20px" }}
-                />
-              }
-            >
-              Sign up with Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{ mt: 1, mb: 2 }}
-              startIcon={
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
-                  alt="Facebook"
-                  style={{ width: "20px", height: "20px" }}
-                />
-              }
-            >
-              Sign up with Facebook
-            </Button>
             <Grid container>
               <Grid item xs>
                 <Link
-                  href="/Login"
-                  variant="body2"
-                  sx={{ color: "blue", textDecoration: "none" }}
+                  to={"/Login"}
+                  variant="body4"
+                  style={{
+                    textDecoration: "none",
+                    fontSize: "0.75rem",
+                    color: "blue",
+                  }}
                 >
                   Already have an account? Sign In
                 </Link>

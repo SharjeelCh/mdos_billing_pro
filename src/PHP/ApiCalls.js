@@ -2,13 +2,18 @@ import axios from "axios";
 import { loginState } from "./StateApiCalls";
 
 export const signup = (input) => {
-  axios.post("http://localhost/api/signup", input)
-    .then((response) => {
-      console.log("response:", response.data);
-    })
-    .catch((error) => {
-      console.error("Error signing up:", error);
-    });
+  return new Promise((resolve, reject) => {
+    axios
+      .post("http://localhost/api/signup", input)
+      .then((response) => {
+        console.log("response:", response.data);
+        resolve(response.data);
+      })
+      .catch((error) => {
+        console.error("Error signing up:", error);
+        reject(error.response.data)
+      });
+  });
 };
 
 export const login = (email, password, setUser) => {
@@ -21,7 +26,7 @@ export const login = (email, password, setUser) => {
     })
     .then((response) => {
       setUser(response.data);
-      loginState(email,password)
+      loginState(email, password);
       console.log(response.data);
     })
     .catch((error) => {

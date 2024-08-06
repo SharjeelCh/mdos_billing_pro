@@ -12,11 +12,13 @@ import {
   Switch,
   Spin,
   DatePicker,
+  Typography,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const InsuranceForm = () => {
@@ -38,7 +40,6 @@ const InsuranceForm = () => {
           `http://localhost/api/getPatientInfo/`,
           { params: { patient_id: user.id } }
         );
-        console.log(response.data);
         if (response.data.status === "success") {
           setPatientInfo(response.data);
         } else {
@@ -80,7 +81,7 @@ const InsuranceForm = () => {
             address: insuranceData.address,
             sex: insuranceData.sex,
           });
-          const blob = new Blob([response.data.data], {
+          const blob = new Blob([response.data.pdf], {
             type: "application/pdf",
           });
           const url = URL.createObjectURL(blob);
@@ -92,7 +93,6 @@ const InsuranceForm = () => {
               url: url,
             },
           ]);
-          console.log(blob);
         } else {
           message.error(
             response.data.message || "Failed to fetch insurance info"
@@ -110,7 +110,7 @@ const InsuranceForm = () => {
   }, [user.id, form]);
 
   useEffect(() => {
-    const fetchInsuranceInfo = async () => {
+    const fetchSecondaryInsuranceInfo = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
@@ -121,8 +121,6 @@ const InsuranceForm = () => {
         );
         if (response.data.status === "success") {
           const insuranceData = response.data.data[0];
-          console.log("Secondary Insurance data:", insuranceData);
-
           secondaryForm.setFieldsValue({
             secondaryRelation: insuranceData.relation,
             secondaryPlanName: insuranceData.plan_name,
@@ -135,7 +133,7 @@ const InsuranceForm = () => {
             secondaryAddress: insuranceData.address,
             secondarySex: insuranceData.sex,
           });
-          const blob = new Blob([response.data.data], {
+          const blob = new Blob([response.data.pdf], {
             type: "application/pdf",
           });
           const url = URL.createObjectURL(blob);
@@ -147,7 +145,6 @@ const InsuranceForm = () => {
               url: url,
             },
           ]);
-          console.log(blob);
         } else {
           message.error(
             response.data.message || "Failed to fetch secondary insurance info"
@@ -161,14 +158,13 @@ const InsuranceForm = () => {
       }
     };
 
-    fetchInsuranceInfo();
+    fetchSecondaryInsuranceInfo();
   }, [user.id, secondaryForm]);
 
   useEffect(() => {
     if (patientInfo) {
       const { DOB, sex } = patientInfo.data;
       const { first_name, last_name } = user;
-      console.log("Patient Info:", patientInfo.data);
 
       switch (insuranceType) {
         case "S1":
@@ -298,10 +294,6 @@ const InsuranceForm = () => {
       .then((response) => {
         if (response.data.status === "success") {
           message.success("Insurance info submitted successfully");
-          //  form.resetFields();
-          // setFileList([]);
-          //  setSecondaryFileList([]);
-          setShowSecondaryForm(false);
         } else {
           message.error(
             response.data.message || "Failed to submit insurance info"
@@ -331,24 +323,22 @@ const InsuranceForm = () => {
     formData.append("dob", values.secondaryDob);
     formData.append("address", values.secondaryAddress);
     formData.append("sex", values.secondarySex);
+    formData.append("note_pdf", secondaryFileList[0].originFileObj);
     formData.append("notetype", "Secondary insurance");
     formData.append("insurance_type", "Secondary");
 
-    formData.append("note_pdf", secondaryFileList[0].originFileObj);
     axios
-      .post(`http://localhost/api/insertInsuranceInfoS/`, formData, {
+      .post("http://localhost/api/insertInsuranceInfoS", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       .then((response) => {
-        console.log("Secondary Insurance Response:", response);
         if (response.data.status === "success") {
           message.success("Secondary insurance info submitted successfully");
           secondaryForm.resetFields();
-          // setFileList([]);
-          // setSecondaryFileList([]);
-          // setShowSecondaryForm(false);
+          setSecondaryFileList([]);
+          setShowSecondaryForm(false);
         } else {
           message.error(
             response.data.message || "Failed to submit secondary insurance info"
@@ -383,9 +373,9 @@ const InsuranceForm = () => {
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-        Patient Insurance Information
-      </h2>
+      <Title level={3} className="page-title">
+        Primary Insurance Information
+      </Title>
       <Form form={form} onFinish={onFinish} layout="vertical">
         <Form.Item
           label="Insurance Card (Front and Back)"
@@ -542,7 +532,9 @@ const InsuranceForm = () => {
             borderRadius: "8px",
           }}
         >
-          <h3>Secondary Insurance Information</h3>
+          <Title level={3} className="page-title">
+            Secondary Insurance Information
+          </Title>
           <Form
             form={secondaryForm}
             onFinish={onSecondaryFinish}

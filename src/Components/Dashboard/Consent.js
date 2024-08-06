@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Button, Modal, message, Typography } from "antd";
+import { Upload, Button, message, Typography } from "antd";
 import { UploadOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { FaFilePdf } from "react-icons/fa6";
 import { useMediaQuery, useTheme } from "@mui/material";
 import axios from "axios";
-
+import pdf from "../../assets/consent.pdf";
+import { useSelector } from "react-redux";
 const { Dragger } = Upload;
 const { Title } = Typography;
 
 const Consent = () => {
   const [fileList, setFileList] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
   const theme = useTheme();
+  const user =useSelector((state) => state.auth.user);
+  const patientId = user.id;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [uploadInfo, setUploadInfo] = useState({
     name: "",
     uploadedBy: "",
     uploadDate: "",
   });
-  const [patientId, setPatientId] = useState(1); // Replace with actual patient ID
 
   useEffect(() => {
     const fetchConsentForm = async () => {
@@ -28,17 +29,7 @@ const Consent = () => {
           `http://localhost/api/getConsentForm?patient_id=${patientId}`,
           { responseType: "blob" }
         );
-        console.log(response.data);
-        if (response.data.type === "text/html") {
-          setFileList([]);
-          setUploadInfo({
-            name: "",
-            uploadedBy: "",
-            uploadDate: "",
-          });
-          setPdfUrl("");
-          return;
-        } else {
+        if (response.data.type === "application/pdf") {
           const blob = new Blob([response.data], { type: "application/pdf" });
           const url = URL.createObjectURL(blob);
           setPdfUrl(url);
@@ -58,6 +49,14 @@ const Consent = () => {
               .split("T")[0]
               .replace(/-/g, ""),
           });
+        } else {
+          setFileList([]);
+          setUploadInfo({
+            name: "",
+            uploadedBy: "",
+            uploadDate: "",
+          });
+          setPdfUrl("");
         }
       } catch (error) {
         console.error("Failed to fetch consent form:", error);
@@ -160,7 +159,7 @@ const Consent = () => {
           alignItems: "center",
           cursor: "pointer",
         }}
-        onDoubleClick={() => window.open(pdfUrl)}
+        onDoubleClick={() => window.open(pdf)}
       >
         <FaFilePdf
           color="red"
@@ -179,17 +178,16 @@ const Consent = () => {
           <Button
             type="link"
             icon={<EyeOutlined />}
-            onClick={() => window.open(pdfUrl)}
+            onClick={() => window.open(pdf)}
             style={{ marginLeft: "auto" }}
           >
             View
           </Button>
         )}
       </div>
-
       <Dragger
         customRequest={handleUpload}
-        fileList={fileList || []}
+        fileList={fileList}
         onRemove={handleDelete}
         accept=".pdf"
       >
